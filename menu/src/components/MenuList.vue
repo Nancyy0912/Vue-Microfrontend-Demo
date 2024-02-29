@@ -14,9 +14,39 @@
             <a href="#"><img class="restaurant-image" :src="item.imgSrc" /></a>
             <div class="restaurant-name">{{ item.name }}</div>
             <div class="restaurant-info">
-              <button @click="addCartitems(item)" class="btn info">
+              <button
+                v-if="!isItemIdExists(item.id)"
+                @click="addCartitems(item)"
+                class="btn info"
+              >
                 Add to Cart
               </button>
+              <ul v-else class="food-list">
+                <!-- <li
+                  v-for="(item, index) in cartList"
+                  :key="index"
+                  class="food-list__item"
+                > -->
+                <!-- <div class="food-name">{{ item.name }}</div>                                                            -->
+                <div class="quantity-controls">
+                  <button
+                    @click="decreaseQuantity(item)"
+                    class="decrease-button"
+                  >
+                    -
+                  </button>
+                  <span class="quantity">{{ itemQuantity(item.id) }}</span>
+                  <button
+                    @click="increaseQuantity(item)"
+                    class="increase-button"
+                   :class="{'disabled': itemQuantity(item.id) >= 5}"
+                  >
+                    +
+                  </button>
+                </div>
+                <!-- <div class="food-price">{{ item.price }}</div> -->
+                <!-- </li> -->
+              </ul>
             </div>
           </li>
         </ul>
@@ -25,16 +55,52 @@
   </div>
 </template>
 <script setup>
-import { ref } from 'vue';
-import { useProductsStore } from '../store/productStore';
-import { pubsub } from '../pubsub';
+import { ref, computed } from "vue";
+import { useProductsStore } from "../store/productStore";
+import { useCartStore } from "cart/CartStore";
 
+import { pubsub } from "../pubsub";
+
+const isCartEmpty = ref(true);
+const disableItem = ref(false);
+const selectedItemId = ref(null);
 const productsStore = useProductsStore();
+const cartStore = useCartStore();
 const menuList = ref(productsStore.getProducts);
+const selectedItem = ref([]);
+const cartItems = computed(() => cartStore.getCartItems);
+
+const isItemIdExists = (id) => {
+  return cartItems.value.some(item => item.id === id);
+
+};
 
 const addCartitems = (data) => {
-  pubsub.publish('addToCart', data);
+  isCartEmpty.value = false;
+  selectedItemId.value = data.id;
+  selectedItem.value.push(data.id);
+  pubsub.publish("addToCart", data);
 };
+
+function itemQuantity (id) {
+  const existingProduct = cartItems.value.find((item) => item.id === id);
+  if (existingProduct) {
+    if (existingProduct.quantity > 5) {
+      disableItem.value = true;
+    }
+    disableItem.value = false;
+    return existingProduct.quantity;
+  }
+    return;
+};
+
+function decreaseQuantity(product) {
+  pubsub.publish("removeItem", product);
+}
+
+function increaseQuantity(product) {
+  pubsub.publish("addToCart", product);
+}
 </script>
 
 <style scoped>
@@ -80,6 +146,46 @@ h1 {
   padding: 5px 10px;
   cursor: pointer;
   border-radius: 4px;
+}
+.quantity-controls {
+  display: flex;
+  align-items: center;
+}
+.quantity {
+  margin: 0 10px;
+  font-size: initial;
+}
+/* Style for disabled list item */
+.disabled {
+  pointer-events: none;
+  opacity: 0.5; 
+}
+.increase-button {
+  background-color: #718181;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-left: 5px;
+}
+
+.increase-button:hover {
+  background-color: #54e1e1;
+}
+
+.decrease-button {
+  background-color: #718181;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-left: 5px;
+}
+
+.decrease-button:hover {
+  background-color: #54e1e1;
 }
 
 .add-to-cart-button:hover {
@@ -416,7 +522,7 @@ body {
   display: grid;
   row-gap: 33px;
   padding: 0;
-  margin: 54px 0 0 0;
+  /* margin: 54px 0 0 0; */
   font-size: 10px;
   font-weight: bold;
   list-style-type: none;

@@ -17,7 +17,10 @@ export default defineConfig({
         './CartStore': './src/store/cartStore.js',
         './PubSub': './src/pubsub.js'
       },
-      shared: ['vue', 'pinia']
+      shared: ['vue', 'pinia'],
+      // remotes:{
+      //   'menu': 'http://localhost:3002/dist/assets/menu.js',
+      // },
     }),
   ],
   build: {

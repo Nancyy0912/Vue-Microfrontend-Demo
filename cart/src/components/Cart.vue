@@ -19,7 +19,11 @@
                 -
               </button>
               <span class="quantity">{{ item.quantity }}</span>
-              <button @click="increaseQuantity(item)" class="increase-button">
+              <button
+                @click="increaseQuantity(item)"
+                :class="{ 'disabled': item.quantity >= 5 }"
+                class="increase-button"
+              >
                 +
               </button>
             </div>
@@ -33,7 +37,6 @@
       </div>
     </article>
   </div>
- 
 </template>
 <script setup>
 import { computed } from "vue";
@@ -91,6 +94,12 @@ ul {
 
 .item-price {
   color: #888;
+}
+
+/* Style for disabled list item */
+.disabled {
+  pointer-events: none;
+  opacity: 0.5; 
 }
 
 .quantity-controls {
@@ -192,7 +201,7 @@ body {
   font-weight: 600;
   list-style-type: none;
 }
-.food-list__item { 
+.food-list__item {
   display: inline-grid;
   align-items: center;
 }
@@ -223,5 +232,4 @@ body {
   font-size: 22px;
   font-weight: bold;
 }
-
 </style>
