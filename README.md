@@ -12,6 +12,8 @@ This project demonstrates a microfrontend architecture using Vite modern federat
 - **Deployment Flexibility**: Supports independent deployment of microfrontends, facilitating continuous delivery and faster time-to-market. 
 
 ## Project Structure
+
+```
 my-microfrontend-app/
 │
 ├── menu/
@@ -59,6 +61,8 @@ my-microfrontend-app/
 │
 │
 └── package.json
+
+```
 
 ## Scripts
 
